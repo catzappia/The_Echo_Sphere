@@ -1,0 +1,20 @@
+{
+  "name": "the_echo_sphere",
+  "version": "1.0.0",
+  "description": "Hey, is there an echo in here? Just Kidding! Welcome to The EchoSphere, a social media app that lets users share their thoughts.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "npm run build && node dist/server.js",
+    "seed": "node dist/seeds/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1",
+    "mongoose": "^8.7.3"
+  }
+}
