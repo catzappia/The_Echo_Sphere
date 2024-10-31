@@ -1,4 +1,4 @@
-import User from '../models/user.js';
+import User from '../models/user';
 /**
  * GET All users /api/users
  * @returns  an array of Users
@@ -9,7 +9,7 @@ export const getAllUsers = async (_req, res) => {
         res.status(200).json(users);
     }
     catch (error) {
-        res.status(404).json({ message: 'User not found' });
+        res.status(500).json({ message: 'An error occurred' });
     }
 };
 /**
@@ -18,13 +18,16 @@ export const getAllUsers = async (_req, res) => {
  * @returns  a single User
  */
 export const getUserById = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.params.id;
     try {
         const user = await User.findById(userId);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+        }
         res.status(200).json(user);
     }
     catch (error) {
-        res.status(404).json({ message: 'User not found' });
+        res.status(500).json({ message: 'An error occurred' });
     }
 };
 /**
@@ -36,11 +39,15 @@ export const createUser = async (req, res) => {
     const user = req.body;
     const newUser = new User(user);
     try {
+        await newUser.validate();
         await newUser.save();
         res.status(201).json(newUser);
     }
     catch (error) {
-        if (error instanceof Error) {
+        if (error instanceof Error && error.name === 'ValidationError') {
+            res.status(400).json({ message: error.message });
+        }
+        else if (error instanceof Error) {
             res.status(409).json({ message: error.message });
         }
         else {
@@ -54,11 +61,11 @@ export const createUser = async (req, res) => {
  * @returns  a single User
  */
 export const updateUser = async (req, res) => {
-    const { userId } = req.params;
+    const { id } = req.params;
     const user = req.body;
     try {
         const updated = await User
-            .findByIdAndUpdate(userId, user, { new: true });
+            .findByIdAndUpdate(id, user, { new: true });
         res.status(200).json(updated);
     }
     catch (error) {
@@ -76,9 +83,9 @@ export const updateUser = async (req, res) => {
  * @returns  a single User
  */
 export const deleteUser = async (req, res) => {
-    const { userId } = req.params;
+    const { id } = req.params;
     try {
-        const deleted = await User.findByIdAndDelete(userId);
+        const deleted = await User.findByIdAndDelete(id);
         res.status(200).json(deleted);
     }
     catch (error) {
@@ -117,7 +124,7 @@ export const addFriend = async (req, res) => {
  * @returns  a single User
  */
 export const removeFriend = async (req, res) => {
-    const { userId, friendId } = req.params;
+    const { id: userId, friendId } = req.params;
     try {
         const user = await User
             .findByIdAndUpdate(userId, { $pull: { friends: friendId } }, { new: true });
