@@ -1,4 +1,4 @@
-import User from '../models/user';
+import User from '../models/user.js';
 /**
  * GET All users /api/users
  * @returns  an array of Users
